@@ -30,7 +30,6 @@ void amplitud(Arbol raiz)
   colaCreaVacia(&c);
   nodo = raiz;
   if (raiz!=NULL) colaInserta(&c,nodo);
-  printf("Esto es una prueba para ver si funciona\n");
   while (!colaVacia(&c))
   { nodo = (Arbol) colaSuprime(&c);
     printf(" %c ", nodo->info);
