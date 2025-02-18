@@ -9,6 +9,7 @@
 Arbol creaNodo(tipoInfo info)
 { tipoNodo * nuevo;
 
+  //EsTa es la ultima prueba
   //   nuevo =(tipoNodo *)calloc(1, sizeof(tipoNodo));
   if ((nuevo =(tipoNodo *)malloc(sizeof(tipoNodo)))==NULL)
 	return NULL;
