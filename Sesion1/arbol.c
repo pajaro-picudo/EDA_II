@@ -16,7 +16,6 @@ Arbol creaNodo(tipoInfo info)
   { 	nuevo->info=info;
 	nuevo->izq=NULL;
 	nuevo->der=NULL;
-  //Prueba otra vez
 	return nuevo;
    }
 }
