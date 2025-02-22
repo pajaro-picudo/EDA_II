@@ -15,7 +15,7 @@ arbol.o: arbol.h arbol.c
 	gcc -c -g arbol.c 
 genArbol.o: genArbol.c  
 	gcc -c genArbol.c 
-cola.o: cola.c cola.h 
+cola.o: cola.h cola.c 
 	gcc -g -c cola.c
 pila.o: pila.c pila.h arbol.h
 	gcc -c pila.c

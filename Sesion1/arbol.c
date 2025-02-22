@@ -3,7 +3,7 @@
 #include "arbol.h"
 #include "cola.h"
 
-// 
+//
 // Reserva de memoria para un nuevo nodo de árbol binario
 //
 Arbol creaNodo(tipoInfo info)
