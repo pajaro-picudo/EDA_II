@@ -16,7 +16,7 @@ int main () {
       varArbol->der->izq=creaNodo('F');
       varArbol->der->der=creaNodo('G');
     
-      printf("\n La altura del árbol es: %d", altura(varArbol));
+      printf("La altura del árbol es: %d\n", altura(varArbol));
 }
 
 int altura(Arbol raiz) {
