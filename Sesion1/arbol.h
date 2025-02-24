@@ -22,7 +22,7 @@ void amplitud(Arbol raiz);
 int altura(Arbol raiz);
 int numNodos(Arbol raiz);
 Arbol anula(Arbol raiz);
-int sustiuye(Arbol raiz, tipoInfo x, tipoInfo y);
+int sustituye(Arbol raiz, tipoInfo x, tipoInfo y);
 int numNodosHoja(Arbol raiz);
 int numNodosInternos(Arbol raiz);
 int numHijoUnico(Arbol raiz);

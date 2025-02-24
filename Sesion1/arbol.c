@@ -62,12 +62,5 @@ void postOrden(Arbol raiz)
   }
 }
 
-int altura(Arbol raiz) {
-
-  
-
-
-}
-
 
 
