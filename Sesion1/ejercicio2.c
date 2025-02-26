@@ -9,13 +9,15 @@ int main () {
     Arbol varArbol2;
 
     /* Creación arbol ejemplo de las transparencias de recorridos */
-      varArbol = creaNodo('A');
-      varArbol->izq=creaNodo('B');
-      varArbol->der = creaNodo('C');
-      varArbol->izq->izq=creaNodo('D');
-      varArbol->izq->der=creaNodo('B');
-      varArbol->der->izq=creaNodo('F');
-      varArbol->der->der=creaNodo('G');
+      varArbol = creaNodo(1);
+      varArbol->izq=creaNodo(2);
+      varArbol->der = creaNodo(3);
+      varArbol->izq->izq=creaNodo(1);
+      varArbol->izq->der=creaNodo(5);
+      varArbol->der->izq=creaNodo(6);
+      varArbol->der->der=creaNodo(1);
+      varArbol->izq->izq->izq=creaNodo(8);
+      varArbol->der->der->der=creaNodo(9);
     
       amplitud(varArbol);
       printf("\n");
@@ -23,9 +25,14 @@ int main () {
       printf("El número de nodos del árbol es: %d\n", numNodos(varArbol));
       varArbol2 = (varArbol);
       printf("El Árbol ha sido anulado: altura = %d \n", numNodos(varArbol)); //No se si está funcionando bien
-      printf("Vamos a sustituir las B por A, el número de sustituciones que ha habido es: %d\n", sustituye(varArbol, 'B', 'A'));
+      printf("Vamos a sustituir los 1 por 3, el número de sustituciones que ha habido es: %d\n", sustituye(varArbol, 1, 3));
       amplitud(varArbol);
       printf("\n");
+      printf("El número de nodos hoja del árbol es: %d\n", numNodosHoja(varArbol));
+      printf("El número de nodos internos del árbol es: %d\n", numNodosInternos(varArbol));
+      printf("El número de nodos con un solo hijo del árbol es: %d\n", numHijoUnico(varArbol));
+      printf("El nodo con el valor más alto es: %c\n", buscarMax(varArbol)->info);
+
     }
 
 int altura(Arbol raiz) {
@@ -79,12 +86,78 @@ int sustituye(Arbol raiz, tipoInfo x, tipoInfo y) {
     return sustituciones;
 }
 
+int numNodosHoja(Arbol raiz) {
+
+if (raiz != NULL) {
+
+    if (raiz->izq == NULL && raiz->der == NULL) {
+        return 1;
+    } else {
+        return numNodosHoja(raiz->izq) + numNodosHoja(raiz->der);
+    }
+
+}
+
+}
+
+int numNodosInternos(Arbol raiz) {
+
+    if(raiz != NULL) {
+
+        if (raiz->izq != NULL || raiz->der != NULL) {
+            return 1 + numNodosInternos(raiz->izq) + numNodosInternos(raiz->der);
+        } else {
+            return numNodosInternos(raiz->izq) + numNodosInternos(raiz->der);
+        }
+
+    }
+}
+
+int numHijoUnico(Arbol raiz) {
+ 
+    if (raiz != NULL) {
+
+        if ((raiz->izq != NULL && raiz->der == NULL) || (raiz->izq == NULL && raiz->der != NULL)) 
+        return 1 + numHijoUnico(raiz->izq) + numHijoUnico(raiz->der);
+        else 
+        return numHijoUnico(raiz->izq) + numHijoUnico(raiz->der);
+        
+    }
+    else return 0;
+}
+
+
+Arbol buscarMax(Arbol raiz) {
+
+Arbol izqMax, derMax;
+
+if (raiz == NULL) {
+    return NULL;
+}
+
+if (raiz->izq != NULL) izqMax = buscarMax(raiz->izq);
+if (raiz->der != NULL) derMax = buscarMax(raiz->der);
+
+
+
+    if ((raiz->info > buscarMax(raiz->izq)->info && raiz->info > buscarMax(raiz->der)->info) && (raiz->izq != NULL && raiz->der != NULL)) {
+        return raiz;
+    } else if ((buscarMax(raiz->izq)->info > buscarMax(raiz->der)->info) && raiz->izq != NULL) {
+        return buscarMax(raiz->izq);
+    } else if(raiz->der != NULL) {
+        return buscarMax(raiz->der);
+    }
+
+
+
+}
+
+
 /*
 
-int numNodosHoja(Arbol raiz);
-int numNodosInternos(Arbol raiz);
-int numHijoUnico(Arbol raiz);
-Arbol buscarMax(Arbol raiz);
+
+
+
 Arbol buscarMin(Arbol raiz);
 int similares(Arbol r1,Arbol r2);
 int equivalentes(Arbol r1,Arbol r2);

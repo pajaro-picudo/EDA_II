@@ -32,7 +32,7 @@ void amplitud(Arbol raiz)
   if (raiz!=NULL) colaInserta(&c,nodo);
   while (!colaVacia(&c))
   { nodo = (Arbol) colaSuprime(&c);
-    printf(" %c ", nodo->info);
+    printf(" %d ", nodo->info);
     if (nodo->izq!=NULL) colaInserta(&c,nodo->izq);
     if (nodo->der!=NULL) colaInserta(&c,nodo->der);
   }
