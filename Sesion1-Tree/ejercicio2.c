@@ -129,21 +129,20 @@ int numHijoUnico(Arbol raiz) {
 
 Arbol buscarMax(Arbol raiz) {
 
-Arbol raizMax = NULL;
+Arbol raizIzq = NULL, raizDer = NULL;
 
 if (raiz == NULL) {
     return NULL;
 }
 
-if (raiz->izq != NULL && raiz->izq->info > raiz->info && raiz->der->info < raiz->izq->info) izqMax = buscarMax(raiz->izq);
-if (raiz->der != NULL) derMax = buscarMax(raiz->der);
+if (raizIzq = buscarMax(raiz->izq) == NULL) return NULL;
+if (raizDer = buscarMax(raiz->der) == NULL) return NULL;
 
-if (izqMax != NULL && izqMax->info > raiz->info) {
-    return izqMax;
-}
-if (derMax != NULL && derMax->info > raiz->info) {
-    return derMax;
-}
+
+    
+
+
+
 return raiz;
 
 }
