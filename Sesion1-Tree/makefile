@@ -1,6 +1,6 @@
 # Sesión 2 Implementación de las funciones del ejercicio2
 
-all: ejercicio1 ejercicio2
+all: ejercicio1 ejercicio2 limpiar
 
 # Ejercicio 1: Recorridos en árboles binarios
 
@@ -25,7 +25,7 @@ cola.o: cola.h cola.c
 pila.o: pila.c pila.h arbol.h
 	gcc -c pila.c
 limpiar:
-	rm *.o
+	rm -f *.o
 
 
 
