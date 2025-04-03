@@ -24,8 +24,6 @@ m->tamanno++;
 m->elemento[m->tamanno] = x;
 filtradoAscendente(&m, m->tamanno);
 return 0;
-    
-
 
 }
 
@@ -83,8 +81,8 @@ if (pos <= 0 || pos > m->tamanno) {
   filtradoAscendente(m, pos);
 
 
+  }
 }
-
 void incrementarClave(int pos, tipoClave cantidad, Monticulo *m) {
 
   if (pos <= 0 || pos > m->tamanno) {
@@ -94,8 +92,8 @@ void incrementarClave(int pos, tipoClave cantidad, Monticulo *m) {
   m->elemento[pos].clave += cantidad;
   filtradoDescendente(m, pos);
 
+  }
 }
-
 int esMonticulo(Monticulo m) {
 
 for (int i = m.tamanno ; i > 1 ; i--) {
