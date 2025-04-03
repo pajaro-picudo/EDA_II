@@ -73,3 +73,41 @@ void filtradoDescendente(Monticulo *m, int i){
   m->elemento[i] = hueco;
 }
 
+void decrementarClave(int pos, tipoClave cantidad, Monticulo *m) {
+
+if (pos <= 0 || pos > m->tamanno) {
+    printf("Error: posición fuera de rango\n");
+    return;
+
+  m->elemento[pos].clave -= cantidad;
+  filtradoAscendente(m, pos);
+
+
+}
+
+void incrementarClave(int pos, tipoClave cantidad, Monticulo *m) {
+
+  if (pos <= 0 || pos > m->tamanno) {
+    printf("Error: posición fuera de rango\n");
+    return;
+
+  m->elemento[pos].clave += cantidad;
+  filtradoDescendente(m, pos);
+
+}
+
+int esMonticulo(Monticulo m) {
+
+for (int i = m.tamanno ; i > 1 ; i--) {
+
+    if (m.elemento[i].clave < m.elemento[i/2].clave) {
+        printf("Error: No es un montículo\n");
+        return 0;
+    }
+  }
+  return 1; 
+
+}
+
+//void crearMonticulo(Monticulo *m);
+
