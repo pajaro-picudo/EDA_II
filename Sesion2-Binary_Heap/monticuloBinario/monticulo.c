@@ -22,7 +22,7 @@ if (m->tamanno >= MAXIMO) {
 }
 m->tamanno++;
 m->elemento[m->tamanno] = x;
-filtradoAscendente(&m, m->tamanno);
+filtradoAscendente(m, m->tamanno);
 return 0;
 
 }
@@ -72,28 +72,23 @@ void filtradoDescendente(Monticulo *m, int i){
 }
 
 void decrementarClave(int pos, tipoClave cantidad, Monticulo *m) {
-
-if (pos <= 0 || pos > m->tamanno) {
-    printf("Error: posición fuera de rango\n");
-    return;
-
-  m->elemento[pos].clave -= cantidad;
-  filtradoAscendente(m, pos);
-
-
-  }
-}
-void incrementarClave(int pos, tipoClave cantidad, Monticulo *m) {
-
   if (pos <= 0 || pos > m->tamanno) {
     printf("Error: posición fuera de rango\n");
     return;
+} // ¡Esta llave cierra el if!
+m->elemento[pos].clave -= cantidad;
+filtradoAscendente(m, pos);
+}
 
+
+void incrementarClave(int pos, tipoClave cantidad, Monticulo *m) {
+  if (pos <= 0 || pos > m->tamanno) {
+      printf("Error: posición fuera de rango\n");
+      return;
+  } // Llave de cierre del if
   m->elemento[pos].clave += cantidad;
   filtradoDescendente(m, pos);
-
-  }
-}
+} // Llave de cierre de la función
 int esMonticulo(Monticulo m) {
 
 for (int i = m.tamanno ; i > 1 ; i--) {
@@ -106,6 +101,4 @@ for (int i = m.tamanno ; i > 1 ; i--) {
   return 1; 
 
 }
-
 //void crearMonticulo(Monticulo *m);
-
