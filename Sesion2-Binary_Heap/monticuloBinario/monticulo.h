@@ -32,6 +32,6 @@ int esMonticulo(Monticulo m);
 
 /* Operación crearMonticulo la utilizaremos en ejercicio 2 y en tema de grafos */ 
 
-  void crearMonticulo(Monticulo *m);
-
+void crearMonticulo(Monticulo *m);
+void heapsort (Monticulo *m);
 

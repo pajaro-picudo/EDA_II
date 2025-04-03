@@ -101,4 +101,27 @@ for (int i = m.tamanno ; i > 1 ; i--) {
   return 1; 
 
 }
-//void crearMonticulo(Monticulo *m);
+void crearMonticulo(Monticulo *m) {
+
+  int i;
+  for (i=m->tamanno/2; i >= 1; i--) {
+    filtradoDescendente(m, i);
+  }
+
+}
+
+void heapsort(Monticulo *m){
+  int tam, i;
+  tipoElemento e;
+
+  tam = m->tamanno;
+
+  crearMonticulo(m);
+
+  for(i=1; i<=tam; i++){
+    if(eliminarMinimo(m, &e)) fprintf(stderr,"ERROR eliminarMinimo");
+    m->elemento[m->tamanno+1] = e; 
+  }
+
+  m->tamanno = tam;
+}
