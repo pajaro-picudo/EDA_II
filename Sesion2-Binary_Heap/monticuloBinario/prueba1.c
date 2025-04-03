@@ -18,8 +18,8 @@ int main(void)
   }
 
  for (i=1;i<=m.tamanno;i++)
-   printf("%d ",m.elemento[i].clave);
- printf("\n");
+   //printf("%d ",m.elemento[i].clave);
+  printf("\n");
 
  decrementarClave(6,10,&m);
  for (i=1;i<=m.tamanno;i++)
