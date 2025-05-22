@@ -51,7 +51,7 @@ return 0;
 
 int creaHvacio(char *fichHash,regConfig *reg) {
 // Verificar parámetros mínimos según el enunciado
-if (regC->nCubos < 8 || regC->nCubosDes < 4) {
+if (reg->nCubos < 8 || reg->nCubosDes < 4) {
    return -5; // Parámetros inválidos
 }
 
@@ -62,12 +62,12 @@ if (fHash == NULL) {
 }
 
 // 2. Inicializar valores del registro de configuración
-regC->numReg = 0;          // Total de registros (inicialmente 0)
-regC->numRegDes = 0;       // Registros desbordados (inicialmente 0)
-regC->nCuboDesAct = regC->nCubos; // Primer cubo desborde disponible
+reg->numReg = 0;          // Total de registros (inicialmente 0)
+reg->numRegDes = 0;       // Registros desbordados (inicialmente 0)
+reg->nCuboDesAct = reg->nCubos; // Primer cubo desborde disponible
 
 // 3. Escribir el registro de configuración al inicio del archivo
-if (fwrite(regC, sizeof(regConfig), 1, fHash) != 1) {
+if (fwrite(reg, sizeof(regConfig), 1, fHash) != 1) {
     fclose(fHash);
     return -2; // Error de escritura
 }
@@ -79,7 +79,7 @@ tipoCubo cuboVacio = {
     // Los registros no necesitan inicialización explícita
 };
 
-for (int i = 0; i < regC->nCubos; i++) {
+for (int i = 0; i < reg->nCubos; i++) {
     if (fwrite(&cuboVacio, sizeof(tipoCubo), 1, fHash) != 1) {
         fclose(fHash);
         return -2;
@@ -87,7 +87,7 @@ for (int i = 0; i < regC->nCubos; i++) {
 }
 
 // 5. Crear e inicializar cubos de desborde
-for (int i = 0; i < regC->nCubosDes; i++) {
+for (int i = 0; i < reg->nCubosDes; i++) {
     if (fwrite(&cuboVacio, sizeof(tipoCubo), 1, fHash) != 1) {
         fclose(fHash);
         return -2;
@@ -103,7 +103,7 @@ return 0;
 
 
 
-int insertar(FILE *f, tipoReg *reg, regConfig *regC) {
+int insertar(FILE *fHash, tipoReg *reg, regConfig *regC) {
 // 1. Calcular cubo destino usando la función hash
 int cuboDestino = funcionHash(reg, regC->nCubos);
 int resultado = 0;
