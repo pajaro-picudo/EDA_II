@@ -358,7 +358,7 @@ return -1;
 
 int modificarReg(FILE *fHash, tipoReg *reg, tPosicion *posicion) {
 
-    long posicionRegistro;
+ long posicionRegistro;
     regConfig regC;
 
     // 1. Leer configuración para saber nCubos
