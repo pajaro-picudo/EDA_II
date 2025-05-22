@@ -14,4 +14,6 @@ void mostrarReg(tAlumno *reg);
 int cmpClave(tAlumno *reg1, tAlumno *reg2);
 int buscar(char *fichero, char *dni);
 int modificar(char *fichero, char *dni,char *provincia);
+int insertarReg(char *fichero, tAlumno *nuevoAlumno);
+
 #endif

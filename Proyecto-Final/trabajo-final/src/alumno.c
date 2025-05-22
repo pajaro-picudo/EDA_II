@@ -74,3 +74,28 @@ int modificar(char *fichero, char *dni, char *provincia) {
     fclose(fHash);
     return resultado;
 }
+
+int insertarReg(char *fichero, tAlumno *nuevoAlumno) {
+    FILE *fHash = fopen(fichero, "r+b"); // Abrimos para lectura/escritura binaria
+    if (!fHash) return -2;
+
+    // Leer configuración
+    regConfig regC;
+    if (fread(&regC, sizeof(regConfig), 1, fHash) != 1) {
+        fclose(fHash);
+        return -2;
+    }
+
+    // Insertar usando la función genérica del sistema
+    int resultado = insertar(fHash, nuevoAlumno, &regC);
+
+    // Si fue exitosa, escribir config actualizada
+    if (resultado == 0) {
+        fseek(fHash, 0, SEEK_SET);
+        fwrite(&regC, sizeof(regConfig), 1, fHash);
+        printf("\n--> Registro añadido correctamente\n");
+    }
+
+    fclose(fHash);
+    return resultado;
+}
