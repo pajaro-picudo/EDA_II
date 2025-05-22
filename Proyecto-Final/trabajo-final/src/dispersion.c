@@ -283,3 +283,118 @@ return 0;
 
 
 }// Fin función desborde
+
+int busquedaHash(FILE *fHash, tipoReg *reg, tPosicion *posicion) {
+
+// 1. Obtener registro de configuración
+regConfig regC;
+int cuboPrimario;
+long posCuboPrimario;
+tipoCubo cubo;
+
+if (fseek(fHash, 0, SEEK_SET) != 0 || 
+    fread(&regC, sizeof(regConfig), 1, fHash) != 1) {
+    return -2; // Error de lectura de cabecera
+}
+
+// 2. Calcular cubo primario con función hash
+cuboPrimario = funcionHash(reg, regC.nCubos);
+posicion->cubo = cuboPrimario;
+posicion->cuboDes = -1; // Por defecto, no en desborde
+
+// 3. Posicionarnos y leer el cubo primario
+posCuboPrimario = sizeof(regConfig) + cuboPrimario * sizeof(tipoCubo);
+if (fseek(fHash, posCuboPrimario, SEEK_SET) != 0) {
+    return -2;
+}
+
+if (fread(&cubo, sizeof(tipoCubo), 1, fHash) != 1) {
+    return -2;
+}
+
+// 4. Buscar en cubo primario
+for (int i = 0; i < cubo.numRegAsignados; i++) {
+    if (cmpClave(&cubo.reg[i], reg) == 0) {
+        posicion->posReg = i;
+        *reg = cubo.reg[i]; // Devolver registro completo
+        return 0; // Encontrado en cubo primario
+    }
+}
+
+// 5. Si no está y el cubo tiene desbordes, buscar en área de desborde
+if (cubo.desbordado == 1) {
+    // Buscar en todos los cubos de desborde
+    for (int cuboDesNum = 0; cuboDesNum < regC.nCubosDes; cuboDesNum++) {
+        long posCuboDes = sizeof(regConfig) + (regC.nCubos + cuboDesNum) * sizeof(tipoCubo);
+        
+        if (fseek(fHash, posCuboDes, SEEK_SET) != 0) {
+            return -2;
+        }
+
+        if (fread(&cubo, sizeof(tipoCubo), 1, fHash) != 1) {
+            return -2;
+        }
+
+        // Buscar en el cubo de desborde actual
+        for (int i = 0; i < cubo.numRegAsignados; i++) {
+            if (cmpClave(&cubo.reg[i], reg) == 0) {
+                posicion->posReg = i;
+                posicion->cuboDes = cuboDesNum;
+                *reg = cubo.reg[i]; // Devolver registro completo
+                return 0; // Encontrado en desborde
+            }
+        }
+    }
+}
+
+// 6. Registro no encontrado
+return -1;
+
+
+}// Fin función busquedaHash
+
+
+int modificarReg(FILE *fHash, tipoReg *reg, tPosicion *posicion) {
+
+ // 1. Primero buscar el registro para verificar que existe
+ tipoReg regExistente;
+ int resultado;
+ long posicionRegistro;
+ regConfig regC;
+ 
+ 
+ resultado = busquedaHash(fHash, &regExistente, posicion);
+ if (resultado == -1) {
+     return -1; // Registro no encontrado
+ } else if (resultado != 0) {
+     return resultado; // Propagamos otros errores (-2, -5)
+ }
+
+ // 2. Calcular posición exacta en el archivo
+ // Leer configuración para saber número de cubos primarios
+ if (fseek(fHash, 0, SEEK_SET) != 0 || 
+     fread(&regC, sizeof(regConfig), 1, fHash) != 1) {
+     return -2;
+ }
+
+ if (posicion->cuboDes == -1) {
+     // Registro está en cubo primario
+     posicionRegistro = sizeof(regConfig) + 
+                  posicion->cubo * sizeof(tipoCubo) + 
+                  posicion->posReg * sizeof(tipoReg);
+ } else {
+     // Registro está en cubo de desborde
+     posicionRegistro = sizeof(regConfig) + 
+                       regC.nCubos * sizeof(tipoCubo) +
+                       posicion->cuboDes * sizeof(tipoCubo) + 
+                       posicion->posReg * sizeof(tipoReg);
+ }
+
+ // 3. Posicionarnos y escribir el registro modificado
+ if (fseek(fHash, posicionRegistro, SEEK_SET) != 0 ||
+     fwrite(reg, sizeof(tipoReg), 1, fHash) != 1) {
+     return -2;
+ }
+
+ return 0;
+}// Fin función modificarReg
