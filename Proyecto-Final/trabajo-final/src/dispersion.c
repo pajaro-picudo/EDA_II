@@ -46,4 +46,240 @@ int leeHash(char *fichHash)
    	printf("No se respeta la densidad mínima de ocupacion\n");
    }	
 return 0;	
+}//Fin función leeHash
+
+
+int creaHvacio(char *fichHash,regConfig *reg) {
+// Verificar parámetros mínimos según el enunciado
+if (regC->nCubos < 8 || regC->nCubosDes < 4) {
+   return -5; // Parámetros inválidos
 }
+
+// 1. Abrir el archivo en modo escritura binaria (crea o trunca el archivo)
+FILE *fHash = fopen(fichHash, "wb");
+if (fHash == NULL) {
+    return -2; // Error al abrir el archivo
+}
+
+// 2. Inicializar valores del registro de configuración
+regC->numReg = 0;          // Total de registros (inicialmente 0)
+regC->numRegDes = 0;       // Registros desbordados (inicialmente 0)
+regC->nCuboDesAct = regC->nCubos; // Primer cubo desborde disponible
+
+// 3. Escribir el registro de configuración al inicio del archivo
+if (fwrite(regC, sizeof(regConfig), 1, fHash) != 1) {
+    fclose(fHash);
+    return -2; // Error de escritura
+}
+
+// 4. Crear e inicializar cubos primarios
+tipoCubo cuboVacio = {
+    .numRegAsignados = 0,
+    .desbordado = 0
+    // Los registros no necesitan inicialización explícita
+};
+
+for (int i = 0; i < regC->nCubos; i++) {
+    if (fwrite(&cuboVacio, sizeof(tipoCubo), 1, fHash) != 1) {
+        fclose(fHash);
+        return -2;
+    }
+}
+
+// 5. Crear e inicializar cubos de desborde
+for (int i = 0; i < regC->nCubosDes; i++) {
+    if (fwrite(&cuboVacio, sizeof(tipoCubo), 1, fHash) != 1) {
+        fclose(fHash);
+        return -2;
+    }
+}
+
+// 6. Cerrar el archivo y retornar éxito
+fclose(fHash);
+return 0;
+
+
+}// Fin función creaHvacio
+
+
+
+int insertar(FILE *f, tipoReg *reg, regConfig *regC) {
+// 1. Calcular cubo destino usando la función hash
+int cuboDestino = funcionHash(reg, regC->nCubos);
+int resultado = 0;
+tipoCubo cubo;
+    
+// 2. Posicionarnos en el cubo primario correspondiente
+long posicionCubo = sizeof(regConfig) + cuboDestino * sizeof(tipoCubo);
+if (fseek(fHash, posicionCubo, SEEK_SET) != 0) {
+    return -2; // Error de posicionamiento
+}
+
+// 3. Leer el cubo primario
+if (fread(&cubo, sizeof(tipoCubo), 1, fHash) != 1) {
+    return -2; // Error de lectura
+}
+
+// 4. Verificar si hay espacio en el cubo primario
+if (cubo.numRegAsignados < C) {
+    // Insertar en cubo primario
+    cubo.reg[cubo.numRegAsignados] = *reg;
+    cubo.numRegAsignados++;
+    
+    // Escribir el cubo actualizado
+    if (fseek(fHash, posicionCubo, SEEK_SET) != 0 ||
+        fwrite(&cubo, sizeof(tipoCubo), 1, fHash) != 1) {
+        return -2;
+    }
+    
+    regC->numReg++; // Actualizar contador total
+} else {
+    // 5. Manejar desborde
+    resultado = desborde(fHash, reg, regC);
+    if (resultado != 0) {
+        return resultado; // Propagamos el error
+    }
+    
+    // Si el cubo no estaba marcado como desbordado, marcarlo
+    if (cubo.desbordado == 0) {
+        cubo.desbordado = 1;
+        if (fseek(fHash, posicionCubo, SEEK_SET) != 0 ||
+            fwrite(&cubo, sizeof(tipoCubo), 1, fHash) != 1) {
+            return -2;
+        }
+    }
+}
+
+// 6. Actualizar el registro de configuración en archivo
+if (fseek(fHash, 0, SEEK_SET) != 0 ||
+    fwrite(regC, sizeof(regConfig), 1, fHash) != 1) {
+    return -2;
+}
+
+return 0;
+
+}// Fin función insertar
+
+
+
+int creaHash(char *fichEntrada,char *fichHash, regConfig *regC) {
+
+// 1. Crear el archivo hash vacío
+int resultado = creaHvacio(fichHash, regC);
+if (resultado != 0) {
+    return resultado; // Propagamos el error (-2)
+}
+
+// 2. Abrir el archivo de entrada
+FILE *fEntrada = fopen(fichEntrada, "rb");
+if (fEntrada == NULL) {
+    return -1; // Error en archivo de entrada
+}
+
+// 3. Abrir el archivo hash para lectura/escritura
+FILE *fHash = fopen(fichHash, "r+b");
+if (fHash == NULL) {
+    fclose(fEntrada);
+    return -2; // Error en archivo hash
+}
+
+// 4. Procesar todos los registros del archivo de entrada
+tipoReg registro;
+int error = 0;
+
+while (fread(&registro, sizeof(tipoReg), 1, fEntrada) == 1) {
+    resultado = insertar(fHash, &registro, regC);
+    
+    if (resultado != 0) {
+        error = resultado;
+        break;
+    }
+
+    // Verificar densidad durante el proceso (opcional)
+    float densidadActual = (float)regC->numReg / (regC->nCubos * C);
+    if (densidadActual > regC->densidadMax) {
+        error = -3;
+        break;
+    }
+}
+
+// 5. Verificación final de densidad
+if (error == 0) {
+    float densidadFinal = (float)regC->numReg / (regC->nCubos * C);
+    if (densidadFinal > regC->densidadMax) {
+        error = -3;
+    } else if (densidadFinal < regC->densidadMin) {
+        error = -4;
+    }
+}
+
+// 6. Escribir configuración final (incluso si hubo error)
+fseek(fHash, 0, SEEK_SET);
+fwrite(regC, sizeof(regConfig), 1, fHash);
+
+// 7. Cerrar archivos y retornar
+fclose(fEntrada);
+fclose(fHash);
+
+return error;
+
+}// Fin función creaHash
+
+
+
+int desborde(FILE *fHash,tipoReg *reg, regConfig *regC) {
+
+// 1. Posicionarnos en el cubo de desborde actual
+long posDesborde = sizeof(regConfig) + (regC->nCubos + regC->nCuboDesAct - regC->nCubos) * sizeof(tipoCubo);
+tipoCubo cuboDes;
+
+if (fseek(fHash, posDesborde, SEEK_SET) != 0) {
+    return -2; // Error de posicionamiento
+}
+
+// 2. Leer el cubo de desborde actual
+if (fread(&cuboDes, sizeof(tipoCubo), 1, fHash) != 1) {
+    return -2; // Error de lectura
+}
+
+// 3. Insertar el registro en el cubo de desborde
+if (cuboDes.numRegAsignados >= C) {
+    // Esto no debería ocurrir porque nCuboDesAct apunta a cubo con espacio
+    return -5; // Error interno
+}
+
+cuboDes.reg[cuboDes.numRegAsignados] = *reg;
+cuboDes.numRegAsignados++;
+
+// 4. Escribir el cubo de desborde actualizado
+if (fseek(fHash, posDesborde, SEEK_SET) != 0 ||
+    fwrite(&cuboDes, sizeof(tipoCubo), 1, fHash) != 1) {
+    return -2;
+}
+
+// 5. Actualizar contadores globales
+regC->numReg++;
+regC->numRegDes++;
+
+// 6. Verificar si hemos llenado este cubo de desborde
+if (cuboDes.numRegAsignados == C) {
+    regC->nCuboDesAct++;
+
+    // 7. Comprobar si necesitamos añadir nuevo cubo de desborde
+    if (regC->nCuboDesAct >= regC->nCubos + regC->nCubosDes) {
+        // Crear nuevo cubo de desborde
+        tipoCubo nuevoCubo = {0}; // Inicializado vacío
+        
+        if (fseek(fHash, 0, SEEK_END) != 0 ||
+            fwrite(&nuevoCubo, sizeof(tipoCubo), 1, fHash) != 1) {
+            return -2;
+        }
+        
+        regC->nCubosDes++; // Incrementar contador de cubos de desborde
+    }
+}
+
+return 0;
+
+
+}// Fin función desborde
