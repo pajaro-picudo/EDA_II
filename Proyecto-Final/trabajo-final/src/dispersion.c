@@ -358,45 +358,34 @@ return -1;
 
 int modificarReg(FILE *fHash, tipoReg *reg, tPosicion *posicion) {
 
- // 1. Primero buscar el registro para verificar que existe
- tipoReg regExistente;
- int resultado;
- long posicionRegistro;
- regConfig regC;
- 
- 
- resultado = busquedaHash(fHash, &regExistente, posicion);
- if (resultado == -1) {
-     return -1; // Registro no encontrado
- } else if (resultado != 0) {
-     return resultado; // Propagamos otros errores (-2, -5)
- }
+    long posicionRegistro;
+    regConfig regC;
 
- // 2. Calcular posición exacta en el archivo
- // Leer configuración para saber número de cubos primarios
- if (fseek(fHash, 0, SEEK_SET) != 0 || 
-     fread(&regC, sizeof(regConfig), 1, fHash) != 1) {
-     return -2;
- }
+    // 1. Leer configuración para saber nCubos
+    if (fseek(fHash, 0, SEEK_SET) != 0 || 
+        fread(&regC, sizeof(regConfig), 1, fHash) != 1) {
+        return -2;
+    }
 
- if (posicion->cuboDes == -1) {
-     // Registro está en cubo primario
-     posicionRegistro = sizeof(regConfig) + 
-                  posicion->cubo * sizeof(tipoCubo) + 
-                  posicion->posReg * sizeof(tipoReg);
- } else {
-     // Registro está en cubo de desborde
-     posicionRegistro = sizeof(regConfig) + 
-                       regC.nCubos * sizeof(tipoCubo) +
-                       posicion->cuboDes * sizeof(tipoCubo) + 
-                       posicion->posReg * sizeof(tipoReg);
- }
+    // 2. Calcular posición exacta del registro
+    if (posicion->cuboDes == -1) {
+        // Registro está en cubo primario
+        posicionRegistro = sizeof(regConfig) + 
+                           posicion->cubo * sizeof(tipoCubo) + 
+                           posicion->posReg * sizeof(tipoReg);
+    } else {
+        // Registro está en cubo de desborde
+        posicionRegistro = sizeof(regConfig) + 
+                           regC.nCubos * sizeof(tipoCubo) + 
+                           posicion->cuboDes * sizeof(tipoCubo) + 
+                           posicion->posReg * sizeof(tipoReg);
+    }
 
- // 3. Posicionarnos y escribir el registro modificado
- if (fseek(fHash, posicionRegistro, SEEK_SET) != 0 ||
-     fwrite(reg, sizeof(tipoReg), 1, fHash) != 1) {
-     return -2;
- }
+    // 3. Posicionarse y sobrescribir el registro
+    if (fseek(fHash, posicionRegistro, SEEK_SET) != 0 ||
+        fwrite(reg, sizeof(tipoReg), 1, fHash) != 1) {
+        return -2;
+    }
 
- return 0;
+    return 0; // Modificación exitosa
 }// Fin función modificarReg
