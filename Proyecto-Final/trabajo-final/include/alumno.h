@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #ifndef __ALUMNO_H
 #define __ALUMNO_H
-#define C 8	// Capacidad del cubo fichero de alumnos
+#define C 10	// Capacidad del cubo fichero de alumnos
 typedef struct {
 	char dni[9];		// campo clave
 	char nombre[19];

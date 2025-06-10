@@ -1,5 +1,8 @@
-/* alumno.c */
-#define ALUM // Para activar las definiciones específicas de alumnos
+//-----------------------------------------------//
+// Ángel de Lorenzo Jerez - 49368491A - Grupo A2 //
+//-----------------------------------------------//
+
+#define ALUM 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -9,34 +12,35 @@
     typedef tAlumno tipoReg;
 #endif
 
-
-
-/* Función hash para alumnos (clave: DNI) */
 int funcionHash(tAlumno *reg, int nCubos) {
     return atoi(reg->dni) % nCubos; // Convertir DNI a entero y aplicar módulo
-}
+}// Fin función hash
 
-/* Comparador de claves (DNI) */
+
 int cmpClave(tAlumno *reg1, tAlumno *reg2) {
     return strcmp(reg1->dni, reg2->dni); // Comparar como strings
-}
+}// Fin función cmpClave
 
-/* Muestra un registro de alumno */
+
 void mostrarReg(tAlumno *reg) {
     printf("DNI: %-9s | Nombre: %-19s | Apellidos: %-19s %-19s | Provincia: %-11s\n",
            reg->dni, reg->nombre, reg->ape1, reg->ape2, reg->provincia);
-}
+}// Fin función mostrarReg
 
-/* Busca un alumno por DNI */
 int buscar(char *fichero, char *dni) {
+    tPosicion pos;
+    tAlumno alumnoBusqueda;
+    int resultado;
+    
     FILE *fHash = fopen(fichero, "rb");
+    
     if (!fHash) return -2; // Error de archivo
     
-    tAlumno alumnoBusqueda;
+    
     strcpy(alumnoBusqueda.dni, dni); // Clave de búsqueda
     
-    tPosicion pos;
-    int resultado = busquedaHash(fHash, &alumnoBusqueda, &pos);
+    
+    resultado = busquedaHash(fHash, &alumnoBusqueda, &pos);
     
     if (resultado == 0) {
         printf("\n--> Alumno encontrado:\n");
@@ -49,20 +53,23 @@ int buscar(char *fichero, char *dni) {
     return resultado;
 }
 
-/* Modifica la provincia de un alumno */
 int modificar(char *fichero, char *dni, char *provincia) {
+    tAlumno alumnoMod;
+    int resultado;
+    tPosicion pos;
+    
     FILE *fHash = fopen(fichero, "r+b"); // Lectura/escritura
+    
     if (!fHash) return -2;
     
-    tAlumno alumnoMod;
     strcpy(alumnoMod.dni, dni); // Clave de búsqueda
     
-    tPosicion pos;
-    int resultado = busquedaHash(fHash, &alumnoMod, &pos);
+    
+    resultado = busquedaHash(fHash, &alumnoMod, &pos);
     
     if (resultado == 0) {
-        // Actualizar provincia
-        strncpy(alumnoMod.provincia, provincia, 10);
+        
+        strncpy(alumnoMod.provincia, provincia, 10); // Actualizar provincia
         alumnoMod.provincia[10] = '\0'; // Asegurar terminación
         
         resultado = modificarReg(fHash, &alumnoMod, &pos);
@@ -76,18 +83,19 @@ int modificar(char *fichero, char *dni, char *provincia) {
 }
 
 int insertarReg(char *fichero, tAlumno *nuevoAlumno) {
+    regConfig regC;
+    
     FILE *fHash = fopen(fichero, "r+b"); // Abrimos para lectura/escritura binaria
+    
     if (!fHash) return -2;
 
     // Leer configuración
-    regConfig regC;
     if (fread(&regC, sizeof(regConfig), 1, fHash) != 1) {
         fclose(fHash);
         return -2;
     }
 
-    // Insertar usando la función genérica del sistema
-    int resultado = insertar(fHash, nuevoAlumno, &regC);
+    int resultado = insertar(fHash, nuevoAlumno, &regC); 
 
     // Si fue exitosa, escribir config actualizada
     if (resultado == 0) {

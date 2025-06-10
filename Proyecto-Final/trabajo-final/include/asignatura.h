@@ -17,4 +17,5 @@ void mostrarReg(tAsignatura *reg);
 int cmpClave(tAsignatura *reg1, tAsignatura *reg2);
 int buscar(char *fichero, int codigo);
 int modificar(char *fichero, int codigo,float creditosT, float creditosP);
+int insertarReg(char *fichero, tAsignatura *nuevaAsig);
 #endif

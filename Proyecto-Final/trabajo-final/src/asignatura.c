@@ -1,5 +1,8 @@
-/* asignatura.c */
-#define ASIG // Para activar definiciones específicas de asignaturas
+//-----------------------------------------------//
+// Ángel de Lorenzo Jerez - 49368491A - Grupo A2 //
+//-----------------------------------------------//
+
+#define ASIG 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -11,17 +14,15 @@
 
 
 
-/* Función hash para asignaturas (clave: código numérico) */
 int funcionHash(tAsignatura *reg, int nCubos) {
-    return reg->codigo % nCubos; // Código es entero: aplicar módulo directamente
-}
+    return reg->codigo % nCubos; // Aplicamos módulo
+}// Fin función hash
 
-/* Comparador de claves (código) */
+
 int cmpClave(tAsignatura *reg1, tAsignatura *reg2) {
     return reg1->codigo - reg2->codigo; // Comparar enteros
-}
+}// Fin función cmpClave
 
-/* Muestra una asignatura en formato legible */
 void mostrarReg(tAsignatura *reg) {
     printf(
         "Código: %-6d | Nombre: %-50s\n"
@@ -31,17 +32,18 @@ void mostrarReg(tAsignatura *reg) {
         reg->creditosT, reg->creditosP, reg->tipo, reg->cuatrimestre,
         reg->numGrT, reg->numGrP
     );
-}
+}// Fin función mostrarReg
 
-/* Busca una asignatura por código */
 int buscar(char *fichero, int codigo) {
+    int resultado;
+    tPosicion pos;
     FILE *fHash = fopen(fichero, "rb");
+
     if (!fHash) return -2; // Error de archivo
     
     tAsignatura asignaturaBusqueda = { .codigo = codigo }; // Clave de búsqueda
     
-    tPosicion pos;
-    int resultado = busquedaHash(fHash, &asignaturaBusqueda, &pos);
+    resultado = busquedaHash(fHash, &asignaturaBusqueda, &pos);
     
     if (resultado == 0) {
         printf("\n--> Asignatura encontrada:\n");
@@ -52,17 +54,18 @@ int buscar(char *fichero, int codigo) {
     
     fclose(fHash);
     return resultado;
-}
+}// Fin función buscar
 
-/* Modifica los créditos de una asignatura */
 int modificar(char *fichero, int codigo, float creditosT, float creditosP) {
+    tPosicion pos;
+    int resultado;
     FILE *fHash = fopen(fichero, "r+b"); // Lectura/escritura
+
     if (!fHash) return -2;
     
     tAsignatura asignaturaMod = { .codigo = codigo }; // Clave de búsqueda
     
-    tPosicion pos;
-    int resultado = busquedaHash(fHash, &asignaturaMod, &pos);
+    resultado = busquedaHash(fHash, &asignaturaMod, &pos);
     
     if (resultado == 0) {
         // Actualizar créditos
@@ -77,4 +80,31 @@ int modificar(char *fichero, int codigo, float creditosT, float creditosP) {
     
     fclose(fHash);
     return resultado;
-}
+}// Fin función modificar
+
+int insertarReg(char *fichero, tAsignatura *nuevaAsig) {
+
+    int resultado;
+    regConfig regC;
+    FILE *fHash = fopen(fichero, "r+b"); // lectura/escritura binaria
+
+    if (!fHash) return -2;
+
+    // Leer la cabecera de configuración
+    if (fread(&regC, sizeof(regConfig), 1, fHash) != 1) {
+        fclose(fHash);
+        return -2;
+    }
+
+    resultado = insertar(fHash, nuevaAsig, &regC);
+
+    // Si fue exitosa, actualizar cabecera
+    if (resultado == 0) {
+        fseek(fHash, 0, SEEK_SET);
+        fwrite(&regC, sizeof(regConfig), 1, fHash);
+        printf("\n--> Registro añadido correctamente\n");
+    }
+
+    fclose(fHash);
+    return resultado;
+}// Fin función insertarReg
